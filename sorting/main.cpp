@@ -20,9 +20,9 @@
 }; */
 const size_t BENCH_ARRAY_SIZE_LIMITER = 10'000'000;
 // each case need to be repeated with random data to measure the average time
-const size_t BENCH_NUMBER_OF_REPETITION = 3;
+const size_t BENCH_NUMBER_OF_REPETITION = 4;
 const auto FIELD_WIDTH = 12;
-const size_t TIMEOUT_SECONDS = 10;
+const size_t TIMEOUT_SECONDS = 15;
 
 template <typename RandomAccessIterator>
 bool isDataSorted(RandomAccessIterator it, RandomAccessIterator last, bool ascendingOrder = true)
@@ -156,6 +156,7 @@ int main()
     std::cout << std::endl;
 
     for (size_t n = 0; n < BENCH_ARRAY_SIZE_LIMITER; ++n) {
+        bool atLeastOneAlgorithmSucced = false;
         size_t size = std::pow(2, n);
         std::cout << std::setw(FIELD_WIDTH) << size << ":";
         std::cout.flush();
@@ -183,6 +184,7 @@ int main()
                     break;
                 }
             }
+            atLeastOneAlgorithmSucced |= not hasTimedout;
             // print result
             result /= double(BENCH_NUMBER_OF_REPETITION);
             std::cout
@@ -192,6 +194,9 @@ int main()
                 << (hasTimedout ? "timeout" : std::to_string(result))
                 << "|";
             std::cout.flush();
+        }
+        if (!atLeastOneAlgorithmSucced) {
+            return 0;
         }
 
         std::cout << std::endl;
