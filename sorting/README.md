@@ -32,4 +32,4 @@ SHS - shell sort
       131072:     timeout|     timeout|     timeout|     timeout|
 ```
 
-Timeout means that execution took more than 10 seconds. Data is random one so sometimes bubble sort execution takes less.
+Timeout means that execution took more than 10 seconds. Each case is repeated multiple times to measure real average case performance.
