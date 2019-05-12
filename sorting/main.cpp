@@ -1,7 +1,9 @@
 #include "bubble_sort.hpp"
 #include "insertion_sort.hpp"
+#include "merge_sort.hpp"
 #include "selection_sort.hpp"
 #include "shell_sort.hpp"
+#include "vector_print.h"
 
 #include <chrono>
 #include <cmath>
@@ -11,6 +13,7 @@
 #include <iostream>
 #include <mutex>
 #include <pthread.h>
+#include <set>
 #include <string>
 #include <thread>
 #include <vector>
@@ -22,7 +25,7 @@ const size_t BENCH_ARRAY_SIZE_LIMITER = 10'000'000;
 // each case need to be repeated with random data to measure the average time
 const size_t BENCH_NUMBER_OF_REPETITION = 4;
 const auto FIELD_WIDTH = 12;
-const size_t TIMEOUT_SECONDS = 15;
+const size_t TIMEOUT_SECONDS = 10;
 
 template <typename RandomAccessIterator>
 bool isDataSorted(RandomAccessIterator it, RandomAccessIterator last, bool ascendingOrder = true)
@@ -51,15 +54,34 @@ double _benchmarkSortingAlgorithmWithData(
 {
     using clock = std::chrono::steady_clock;
 
+    std::set<typename RandomAccessIterator::value_type> itemsBeforeOrdering(data.begin(), data.end());
+
     auto startTime = clock::now();
     sort(data.begin(), data.end());
     auto endTime = clock::now();
 
+    std::set<typename RandomAccessIterator::value_type> itemsAfterOrdering(data.begin(), data.end());
+
+    if (itemsAfterOrdering.size() != itemsBeforeOrdering.size()) {
+        throw std::logic_error("Array items set was changed during sorting");
+    }
+
+    for (auto item : itemsAfterOrdering) {
+        auto it = itemsBeforeOrdering.find(item);
+        if (it == itemsBeforeOrdering.end()) {
+            std::cout << "Item "
+                      << item
+                      << "was not in the array before sorting";
+            throw std::logic_error("wrong items");
+        }
+    }
+
     if (!isDataSorted(data.begin(), data.end())) {
         std::cout << "wrong order. First 50 elements are: ";
         auto it = data.begin();
-        while (it != data.end()) {
+        for (size_t i = 0; i < 50 && it != data.end(); ++i) {
             std::cout << *it << " ";
+            ++it;
         }
         std::cout << std::endl;
         throw std::logic_error("wrong order");
@@ -141,7 +163,48 @@ int main()
             [](IteratorType first, IteratorType last) {
                 shell_sort::sort(first, last, true);
             }),
+        SortingAlgorithm<IteratorType>(
+            "MS", "merge sort",
+            [](IteratorType first, IteratorType last) {
+                merge_sort::sort(first, last, true);
+            }),
     };
+
+    // test
+    for (const auto& sortingAlgorithm : algorithms) {
+        auto testCases = std::vector<std::vector<int>> {
+            { -1, 5, 10, 19, 8, 9 },
+            { 1, 1, 1 },
+            { 9, 2, 7 },
+            { 9, 2, -10 },
+            { -15, 10, 100, 200 },
+            { 1 },
+            { 1, 2 },
+            { 2, 1 },
+            {},
+        };
+        for (const auto& data : testCases) {
+            auto correntSortedData = data;
+            std::sort(correntSortedData.begin(), correntSortedData.end());
+            auto sortedDataByAlgorithm = data;
+            sortingAlgorithm.func(sortedDataByAlgorithm.begin(), sortedDataByAlgorithm.end());
+            if (correntSortedData != sortedDataByAlgorithm) {
+                std::cout << "wrong answer. \nExpected: \t";
+                for (const auto& item : correntSortedData) {
+                    std::cout << item << " ";
+                }
+                std::cout << std::endl;
+                std::cout << "Actual: \t";
+                for (const auto& item : sortedDataByAlgorithm) {
+                    std::cout << item << " ";
+                }
+                std::cout << std::endl;
+                throw std::logic_error(std::string("algorithm ") + sortingAlgorithm.name + " gave wrong answer");
+            }
+        }
+    }
+
+    // benchmark
 
     for (const auto& sortingAlgorithm : algorithms) {
         std::cout << sortingAlgorithm.shortName << " - " << sortingAlgorithm.name << std::endl;
@@ -171,7 +234,7 @@ int main()
                 }
                 std::vector<int> testData1;
                 for (size_t i = 0; i < size; ++i) {
-                    testData1.push_back(rand() % 10);
+                    testData1.push_back(rand() % 100);
                 }
                 // sort it
 
