@@ -23,7 +23,7 @@
 }; */
 const size_t BENCH_ARRAY_SIZE_LIMITER = 10'000'000;
 // each case need to be repeated with random data to measure the average time
-const size_t BENCH_NUMBER_OF_REPETITION = 4;
+const size_t BENCH_NUMBER_OF_REPETITION = 3;
 const auto FIELD_WIDTH = 12;
 const size_t TIMEOUT_SECONDS = 10;
 

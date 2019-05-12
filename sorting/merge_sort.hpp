@@ -15,17 +15,7 @@ void sort(const RandomAccessIterator first, const RandomAccessIterator last, con
 
     std::vector<typename RandomAccessIterator::value_type> buffer(first, last);
 
-    /*
-    std::cout << std::endl
-              << "buffer: ";
-    for (const auto& item : buffer) {
-        std::cout << item << " ";
-    }
-    std::cout << std::endl;
-    */
-
     for (size_t subarraySize = 2; subarraySize / 2 < arraySize; subarraySize *= 2) {
-        // std::cout << "subarraySize = " << subarraySize << std::endl;
         RandomAccessIterator bufferIt = buffer.begin();
         const size_t numberOfSubarrays = arraySize / subarraySize + (arraySize % subarraySize != 0 ? 1 : 0);
 
@@ -40,11 +30,6 @@ void sort(const RandomAccessIterator first, const RandomAccessIterator last, con
             if (secondSubarrayEnd > last) {
                 secondSubarrayEnd = last;
             }
-            /*
-            std::cout << "[" << *firstSubarrayIndex << ", " << *firstSubarrayEnd << ")"
-                      << "[" << *secondSubarrayIndex << ", " << *secondSubarrayEnd << ")"
-                      << std::endl;
-                      */
 
             while (true) {
                 if (firstSubarrayIndex == firstSubarrayEnd) {
@@ -67,37 +52,11 @@ void sort(const RandomAccessIterator first, const RandomAccessIterator last, con
                     ++secondSubarrayIndex;
                 }
                 ++bufferIt;
-                /*
-                std::cout << "buffer: ";
-                for (const auto& item : buffer) {
-                    std::cout << item << " ";
-                }
-                std::cout << std::endl;
-                */
             }
         }
-        /*
-        std::cout << "done with fucking subarrays " << std::endl;
-        */
 
         // TODO: optimize by swapping arrays
         std::copy(buffer.begin(), buffer.end(), first);
-
-        /*
-        std::cout << std::endl
-                  << "buffer: ";
-        for (const auto& item : buffer) {
-            std::cout << item << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << std::endl
-                  << "original array: ";
-        for (auto it = first; it != last; ++it) {
-            std::cout << *it << " ";
-        }
-        std::cout << std::endl;
-        */
     }
 }
 }
