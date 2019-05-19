@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.6.0)
 
 project(sorting VERSION 0.1 LANGUAGES CXX)
 
@@ -13,8 +13,9 @@ file(GLOB_RECURSE PROJECT_SOURCES
     "*.cpp"
 )
 
-find_package(Qt5Core)
+find_package (Threads)
 
+list(FILTER PROJECT_SOURCES EXCLUDE REGEX "builds.*")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} Qt5::Core)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})

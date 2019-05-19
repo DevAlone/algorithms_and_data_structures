@@ -1,21 +1,30 @@
 #pragma once
 
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <vector>
 
 namespace merge_sort {
+// sorts iterable and returns true if wasn't timed out
 template <typename RandomAccessIterator>
-void sort(const RandomAccessIterator first, const RandomAccessIterator last, const bool ascendingOrder = true)
+bool sort(
+    RandomAccessIterator first,
+    RandomAccessIterator last,
+    bool ascendingOrder = true,
+    std::function<bool()> timeoutPredicate = {})
 {
     const size_t arraySize = last - first;
     if (arraySize < 2) {
-        return;
+        return true;
     }
 
     std::vector<typename RandomAccessIterator::value_type> buffer(first, last);
 
     for (size_t subarraySize = 2; subarraySize / 2 < arraySize; subarraySize *= 2) {
+        if (timeoutPredicate && timeoutPredicate()) {
+            return true;
+        }
         RandomAccessIterator bufferIt = buffer.begin();
         const size_t numberOfSubarrays = arraySize / subarraySize + (arraySize % subarraySize != 0 ? 1 : 0);
 
@@ -58,5 +67,7 @@ void sort(const RandomAccessIterator first, const RandomAccessIterator last, con
         // TODO: optimize by swapping arrays
         std::copy(buffer.begin(), buffer.end(), first);
     }
+
+    return true;
 }
 }
